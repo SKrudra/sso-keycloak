@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8" />
+    <title>Login</title>
+</head>
+<body>
+    <h1>Login</h1>
+
+    <div th:if="${#authorization.expr('isAuthenticated()')}">
+        <p>Signed in as <span th:text="${#authentication.name}">user</span></p>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit">Logout</button>
+        </form>
+    </div>
+
+    <div th:unless="${#authorization.expr('isAuthenticated()')}">
+        <p>You are not signed in.</p>
+        <!-- OAuth2 authorization endpoint for registration id 'keycloak' -->
+        <a th:href="@{/oauth2/authorization/keycloak}">Sign in with Keycloak</a>
+    </div>
+</body>
+</html>
