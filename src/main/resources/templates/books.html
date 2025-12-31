@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8" />
+    <title>Books</title>
+    <style>
+        table { border-collapse: collapse; width: 80%; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        header { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Book List</h1>
+        <div>
+            <div th:if="${username}">
+                Signed in as <strong th:text="${username}"></strong>
+                <form th:action="@{/logout}" method="post" style="display:inline">
+                    <button type="submit">Logout</button>
+                </form>
+            </div>
+            <div th:unless="${username}">
+                <a th:href="@{/login}">Login</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Author</th>
+                    <th>Price</th>
+                    <th>Created By</th>
+                    <th>Created At</th>
+                    <th>Updated By</th>
+                    <th>Updated At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="book : ${books}">
+                    <td th:text="${book.id}">1</td>
+                    <td th:text="${book.name}">Name</td>
+                    <td th:text="${book.author}">Author</td>
+                    <td th:text="${book.price}">0.00</td>
+                    <td th:text="${book.createdBy}">system</td>
+                    <td th:text="${#dates.format(book.createdDatetime,'yyyy-MM-dd HH:mm:ss')}">-</td>
+                    <td th:text="${book.updatedBy}">system</td>
+                    <td th:text="${#dates.format(book.updatedDatetime,'yyyy-MM-dd HH:mm:ss')}">-</td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+</body>
+</html>

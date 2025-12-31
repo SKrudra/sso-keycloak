@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8" />
+    <title>Home</title>
+</head>
+<body>
+    <header>
+        <h1>Welcome to Book Store</h1>
+        <div>
+            <span th:if="${username}">Signed in as <strong th:text="${username}"></strong></span>
+            <span th:unless="${username}">You are not signed in. <a th:href="@{/login}">Login</a></span>
+        </div>
+    </header>
+
+    <main>
+        <p>This is a public home page.</p>
+        <p><a th:href="@{/books}">Browse books</a></p>
+    </main>
+</body>
+</html>
