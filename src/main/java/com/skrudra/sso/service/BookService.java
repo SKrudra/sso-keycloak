@@ -15,6 +15,10 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 @Service
 public class BookService {
@@ -70,11 +74,34 @@ public class BookService {
         store.remove(id);
     }
 
+    private String firstNonEmpty(String... values) {
+        for (String v : values) {
+            if (v != null && !v.isBlank()) return v;
+        }
+        return null;
+    }
+
     private String getCurrentUsername() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getName() != null && !auth.getName().isEmpty()) {
-            return auth.getName();
+        if (auth == null) return "system";
+
+        // Prefer friendly display name if available
+        if (auth instanceof JwtAuthenticationToken jwtAuth) {
+            Jwt jwt = jwtAuth.getToken();
+            String display = firstNonEmpty(jwt.getClaimAsString("preferred_username"), jwt.getClaimAsString("name"), jwt.getClaimAsString("email"), jwt.getSubject());
+            if (display != null) return display;
         }
-        return "system";
+        Object principal = auth.getPrincipal();
+        if (principal instanceof OidcUser oidc) {
+            String display = firstNonEmpty((String) oidc.getClaimAsString("preferred_username"), (String) oidc.getClaimAsString("name"), (String) oidc.getClaimAsString("email"), oidc.getName());
+            if (display != null) return display;
+        }
+        if (principal instanceof OAuth2User ou) {
+            String display = firstNonEmpty((String) ou.getAttribute("preferred_username"), (String) ou.getAttribute("name"), (String) ou.getAttribute("email"), ou.getName());
+            if (display != null) return display;
+        }
+
+        String name = auth.getName();
+        return (name != null && !name.isBlank()) ? name : "system";
     }
 }
